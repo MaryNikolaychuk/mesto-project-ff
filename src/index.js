@@ -11,7 +11,7 @@ import "./pages/index.css"; // импорт главного файла стил
 
 import { createCard, deleteCard, onLike } from "./scripts/card.js";
 import { initialCards } from "./scripts/cards.js";
-import { openPopup, closePopup, closePopupByOverlay } from "./scripts/modal.js";
+import { openPopup, closePopup, closePopupByOverlayAndButton } from "./scripts/modal.js";
 
 export const cardTemplate = document
   .querySelector("#card-template")
@@ -21,7 +21,9 @@ const addButton = document.querySelector(".profile__add-button");
 export const addPopup = document.querySelector(".popup_type_new-card");
 const editButton = document.querySelector(".profile__edit-button");
 const editPopup = document.querySelector(".popup_type_edit");
-const imagePopup = document.querySelector(".popup_type_image");
+const cardPopup = document.querySelector(".popup_type_image");
+const cardPopupImage = cardPopup.querySelector(".popup__image");
+const popupList = document.querySelectorAll(".popup");
 export const editForm = document.querySelector('[name="edit-profile"]');
 export const nameInput = editForm.querySelector('[name="name"]');
 export const jobInput = editForm.querySelector('[name="description"]');
@@ -42,13 +44,11 @@ initialCards.forEach((card) => {
 
 // попап карточки
 export function onImageClick(card) {
-  const img = imagePopup.querySelector(".popup__image");
+  cardPopupImage.src = card.src;
+  cardPopupImage.alt = card.alt;
+  cardPopup.querySelector(".popup__caption").textContent = card.alt;
 
-  img.src = card.src;
-  img.alt = card.alt;
-  imagePopup.querySelector(".popup__caption").textContent = card.alt;
-
-  openPopup(imagePopup);
+  openPopup(cardPopup);
 }
 
 // форма редактирования
@@ -87,22 +87,13 @@ export function handleAddFormSubmit(evt) {
 // открыть попап добавления карточки
 addButton.addEventListener("click", () => openPopup(addPopup));
 // открыть попап редактирования профиля
-editButton.addEventListener(
-  "click",
-  () => openPopup(editPopup),
-  initProfileFormValues()
-);
-
-const anyPopup = document.querySelectorAll(".popup");
-
-const closeButton = document.querySelectorAll(".popup__close");
-
-closeButton.forEach((btn) => {
-  btn.addEventListener("click", () => closePopup());
+editButton.addEventListener("click", () => {
+  initProfileFormValues();
+  openPopup(editPopup);
 });
 
-anyPopup.forEach((popup) =>
-  popup.addEventListener("click", closePopupByOverlay)
+popupList.forEach((popup) =>
+  popup.addEventListener("click", closePopupByOverlayAndButton)
 );
 
 // форма редактирования

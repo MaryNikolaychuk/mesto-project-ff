@@ -7,9 +7,8 @@ export function openPopup(popup) {
 }
 
 // общая функция закрытия попапов
-export function closePopup() {
-  const opened = document.querySelector(".popup_is-opened");
-  opened.classList.remove("popup_is-opened");
+export function closePopup(popup) {
+  popup.classList.remove("popup_is-opened");
 
   //снять обработчик Esc
   document.removeEventListener("keydown", closeByEsc);
@@ -20,13 +19,18 @@ function closeByEsc(evt) {
   if (evt.key === "Escape") {
     const opened = document.querySelector(".popup_is-opened");
     if (opened) {
-      closePopup();
+      closePopup(opened);
     }
   }
 }
 
-export function closePopupByOverlay(evt) {
-  if (!evt.target.closest(".popup__content")) {
-    closePopup();
+
+export function closePopupByOverlayAndButton(evt) {
+  const opened = document.querySelector(".popup_is-opened");
+  if (
+    !evt.target.closest(".popup__content") ||
+    evt.target.classList.contains("popup__close")
+  ) {
+    closePopup(opened);
   }
 }
