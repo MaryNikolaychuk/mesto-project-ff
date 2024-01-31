@@ -1,7 +1,7 @@
 .popup__content {
   max-width: 430px;
   width: 100%;
-  min-height: 330px;
+  /* min-height: 330px; */
   background-color: #fff;
   border-radius: 10px;
   position: relative;
@@ -15,6 +15,6 @@
     max-width: calc(100% - 40px);
     margin-top: 40px;
     padding: 25px 20px;
-    min-height: 300px;
+    /* min-height: 300px; */
   }
 }

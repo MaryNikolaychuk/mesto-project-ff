@@ -24,7 +24,7 @@ function closeByEsc(evt) {
   }
 }
 
-
+//закрытие попапов по оверлей и кнопке закрытия
 export function closePopupByOverlayAndButton(evt) {
   const opened = document.querySelector(".popup_is-opened");
   if (
@@ -32,5 +32,21 @@ export function closePopupByOverlayAndButton(evt) {
     evt.target.classList.contains("popup__close")
   ) {
     closePopup(opened);
+  }
+}
+
+export function saveBtnLoading(btn, isLoading) {
+  if (isLoading) {
+    btn.textContent = "Сохранение...";
+  } else {
+    btn.textContent = "Сохранить";
+  }
+}
+
+export function deleteBtnLoading(btn, isLoading) {
+  if (isLoading) {
+    btn.textContent = "Удаление...";
+  } else {
+    btn.textContent = "Да";
   }
 }
