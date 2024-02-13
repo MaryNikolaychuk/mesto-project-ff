@@ -1,27 +1,31 @@
-import {
-  cardTemplate,
-  deletePopup,
-  deleteTitle,
-  confirmDeletion,
-  showMessagePopup,
-} from "../index.js";
 import { deleteCardApi, putLike, deleteLike } from "./api.js";
-import { openPopup, closePopup, deleteBtnLoading } from "./modal.js";
+import { openPopup, closePopup } from "./modal.js";
+import { showMessagePopup, handleSubmit } from "./utils.js";
+// import { clearValidation, validationConfig } from "./validation.js";
 
-export function createCard(
+export const cardTemplate = document
+  .querySelector("#card-template")
+  .content.querySelector(".places__item, .card");
+
+export const deletePopup = document.querySelector(".popup_type_delete");
+export const deleteForm = document.forms["delete-form"];
+// const confirmDeletion = deletePopup.querySelector(".popup__button");
+// const deleteTitle = deletePopup.querySelector(".popup__title");
+
+const cardPopup = document.querySelector(".popup_type_image");
+const cardPopupImage = cardPopup.querySelector(".popup__image");
+const cardPopupCaption = cardPopup.querySelector(".popup__caption");
+
+export function createCard({
   card,
   deleteCard,
   onLike,
   onImageClick,
-  ownerId,
   profileId,
-  cardId
-) {
+}) {
   const cardElement = cardTemplate.cloneNode(true);
   const cardImage = cardElement.querySelector(".card__image");
   const cardLikes = cardElement.querySelector(".card__likes");
-
-  cardId = card._id;
 
   cardElement.querySelector(".card__title").textContent = card.name;
   cardImage.src = card.link;
@@ -33,17 +37,17 @@ export function createCard(
   }
 
   const deleteButton = cardElement.querySelector(".card__delete-button");
-  deleteButton.addEventListener("click", () =>
-    deleteCard(cardElement, card.name, cardId)
-  );
+  deleteButton.addEventListener("click", () => {
+    deleteCard(cardElement, card._id, card.name);
+  });
 
-  if (profileId !== ownerId) {
+  if (profileId !== card.owner._id) {
     deleteButton.style.display = "none";
   }
 
   const likeButton = cardElement.querySelector(".card__like-button");
   likeButton.addEventListener("click", () =>
-    onLike(cardId, likeButton, cardLikes)
+    onLike(card._id, likeButton, cardLikes)
   );
   if (card.likes.some((like) => like._id === profileId)) {
     likeButton.classList.add("card__like-button_is-active");
@@ -54,47 +58,50 @@ export function createCard(
   return cardElement;
 }
 
-export function deleteCard(deletingCard, cardName, cardId) {
-  openPopup(deletePopup);
-  deleteTitle.textContent = `Вы уверены что хотите удалить публикацию "${cardName}"?`;
-  confirmDeletion.addEventListener("click", () => {
-    deleteBtnLoading(confirmDeletion, true);
-    deletingCard.remove();
-    deleteCardApi(cardId)
-      .catch((err) => {
-        console.log(`Не удалось удалить публикацию "${cardName}". ${err}`);
-      })
-      .finally(() => {
-        deleteBtnLoading(confirmDeletion, false);
-        closePopup(deletePopup);
-        const message = `Публикация "${cardName}" успешно удалена.`;
-        showMessagePopup(message);
-      });
-  });
+//попап картинки карточки
+export function onImageClick(card) {
+  cardPopupImage.src = card.src;
+  cardPopupImage.alt = card.alt;
+  cardPopupCaption.textContent = card.alt;
+
+  openPopup(cardPopup);
+}
+
+export function deleteCard(deletingCard, cardId, cardName) {
+  deleteCardApi(cardId)
+    .then(() => {
+      deletingCard.remove();
+      closePopup(deletePopup);
+      const message = `Публикация "${cardName}" успешно удалена.`;
+      showMessagePopup(message);
+    })
+    .catch((err) => {
+      console.error(`Ошибка при удалении публикации "${cardName}": ${err}`);
+    });
 }
 
 export function onLike(cardId, likeButton, cardLikes) {
   const isLiked = likeButton.classList.contains("card__like-button_is-active");
   if (!isLiked) {
-    likeButton.classList.add("card__like-button_is-active");
     putLike(cardId)
       .then((card) => {
+        likeButton.classList.add("card__like-button_is-active");
         cardLikes.textContent = card.likes.length;
       })
       .catch((err) => {
-        console.log(`Не удалось поставить лайк на публикацию. ${err}`);
+        console.error(`Ошибка при добавлении лайка на публикацию: ${err}`);
       });
   } else {
-    likeButton.classList.remove("card__like-button_is-active");
     deleteLike(cardId)
       .then((card) => {
+        likeButton.classList.remove("card__like-button_is-active");
         cardLikes.textContent = card.likes.length;
         if (card.likes.length === 0) {
           cardLikes.textContent = "like";
         }
       })
       .catch((err) => {
-        console.log(`Не удалось убрать лайк с публикации. ${err}`);
+        console.error(`Ошибка при удалении лайка с публикации: ${err}`);
       });
   }
 }
